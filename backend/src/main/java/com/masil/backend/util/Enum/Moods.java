@@ -1,4 +1,4 @@
-package com.masil.backend.util;
+package com.masil.backend.util.Enum;
 
 public enum Moods {
 

@@ -1,4 +1,4 @@
-package com.masil.backend.util;
+package com.masil.backend.util.Enum;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
