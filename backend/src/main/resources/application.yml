@@ -1,0 +1,23 @@
+#DB
+spring:
+  datasource:
+    driverClassName: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3307/testdb
+    username: root
+    password: 1234
+
+# JPA configuration
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: create
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+#Server
+server:
+  port: 8090
+  
+#Security
+
