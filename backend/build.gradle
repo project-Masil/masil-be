@@ -45,8 +45,17 @@ dependencies {
 
 	// Json
 	implementation 'org.springframework.boot:spring-boot-starter-json'
-
-
+	
+	// Spring Context Support
+	implementation 'org.springframework:spring-context-support:6.0.10'
+	// Spring Boot Starter Mail
+	implementation 'org.springframework.boot:spring-boot-starter-mail'
+	//redis 추가
+	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+	//JWT
+	implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
+    implementation 'io.jsonwebtoken:jjwt-impl:0.11.5'
+    implementation 'io.jsonwebtoken:jjwt-jackson:0.11.5'
 }
 
 // Qtype 생성 경로

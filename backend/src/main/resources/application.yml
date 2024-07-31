@@ -2,7 +2,7 @@
 spring:
   datasource:
     driverClassName: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3307/testdb
+    url: jdbc:mysql://localhost:3306/testdb
     username: root
     password: 1234
 
@@ -10,7 +10,7 @@ spring:
   jpa:
     open-in-view: false
     hibernate:
-      ddl-auto: create
+      ddl-auto: validate
     show-sql: true
     properties:
       hibernate:
@@ -20,4 +20,22 @@ server:
   port: 8090
   
 #Security
+security:
+  oauth2:
+  resourceserver:
+  jwt:
+  issuer-uri: ${ISSUER_URI}
+  client:
+  registration:
+  keycloak:
+  client-id: ${CLIENT_ID}
+  client-secret: ${CLIENT_SECRET}
 
+#프로필 테스트 임시 파일 저장경로 추후 변경예정
+profile:
+  image:
+    directory: static/images/
+
+# JWT Secret
+jwt:
+  secret: a_very_long_and_secure_secret_key_that_is_at_least_32_bytes_long
