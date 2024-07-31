@@ -23,6 +23,7 @@ public class ResponseBodyFormatter {
 	private final int httpStatus;
 	private final String code;
 	private final String message;
+	private final Object data;
 
 	/**
 	 * @param responseCode ResponseCode 를 implements 한 enum
@@ -38,5 +39,17 @@ public class ResponseBodyFormatter {
 				.build()
 			);
 	}
+
+    public static ResponseEntity<DataResponseBodyFormatter> init(ResponseCode responseCode, String message, Object data) {
+        return ResponseEntity
+                .status(responseCode.getHttpStatus())
+                .body(DataResponseBodyFormatter.builder()
+                        .httpStatus(responseCode.getHttpStatus().value())
+                        .code(responseCode.getCode())
+                        .message(message)
+                        .data(data)
+                        .build()
+                );
+    }
 
 }

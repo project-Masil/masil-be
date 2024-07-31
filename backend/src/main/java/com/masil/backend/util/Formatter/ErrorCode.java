@@ -20,7 +20,9 @@ public enum ErrorCode implements ResponseCode {
         this.message = message;
     }
 
-    public String getCode() {
+
+	@Override
+	public String getCode() {
         return name();
     }
 
