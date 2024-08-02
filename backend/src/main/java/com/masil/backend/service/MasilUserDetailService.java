@@ -5,6 +5,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
@@ -36,7 +37,7 @@ public class MasilUserDetailService {
 
     public MasilUserResponse getUserDetail(String nickName) {
         // 유저 정보 조회
-        MasilMember member = memberRepository.findByUserId(nickName)
+        MasilMember member = memberRepository.findByUserEmail(nickName)
             .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
 
         // 프로필 정보 조회
@@ -74,11 +75,11 @@ public class MasilUserDetailService {
         MasilProfileStatus profileStatus = profileStatusRepository.findById(request.getUser_email())
             .orElseThrow(() -> new RuntimeException("프로필 정보를 찾을 수 없습니다."));
 
-     // 프로필 이미지 업데이트
+        // 프로필 이미지 업데이트
         if (!request.getProfileImage().isEmpty()) {
             // 기존 이미지 파일 삭제
-            if (profileStatus.getProfileImgName() != null) {
-                Path oldImagePath = Paths.get(profileImageDirectory, profileStatus.getProfileImgName());
+            if (profileStatus.getProfileReImgName() != null) {
+                Path oldImagePath = Paths.get(profileImageDirectory, profileStatus.getProfileReImgName());
                 try {
                     Files.deleteIfExists(oldImagePath);
                 } catch (IOException e) {
@@ -87,15 +88,17 @@ public class MasilUserDetailService {
             }
 
             // 새 이미지 파일 저장
-            String newFileName = request.getProfileImage().getOriginalFilename();
-            Path newImagePath = Paths.get(profileImageDirectory, newFileName);
+            String FileName = request.getProfileImage().getOriginalFilename();
+            String uniqueFileName = "masil_" + UUID.randomUUID().toString() + ".png";
+            Path newImagePath = Paths.get(profileImageDirectory, uniqueFileName);
             try {
                 Files.copy(request.getProfileImage().getInputStream(), newImagePath, StandardCopyOption.REPLACE_EXISTING);
             } catch (IOException e) {
                 throw new RuntimeException("새 프로필 이미지 파일 저장에 실패했습니다.", e);
             }
 
-            profileStatus.setProfileImgName(newFileName);
+            profileStatus.setProfileImgName(FileName);
+            profileStatus.setProfileReImgName(uniqueFileName);
             profileStatus.setProfileImgPath(newImagePath.toString());
             profileStatus.setProfileSize(request.getProfileImage().getSize());
         }

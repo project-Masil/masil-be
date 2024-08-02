@@ -80,7 +80,7 @@ public class MasilSignMemberService {
     }
 
     private String saveProfileImage(MultipartFile profileImg) throws IOException {
-        String uniqueFileName = UUID.randomUUID().toString() + "_" + profileImg.getOriginalFilename();
+        String uniqueFileName = "masil_" + UUID.randomUUID().toString() + ".png";
         Path destinationPath = Paths.get(profileImageDirectory, uniqueFileName);
         Files.createDirectories(destinationPath.getParent()); // 디렉토리 생성
         profileImg.transferTo(destinationPath); // 파일 저장

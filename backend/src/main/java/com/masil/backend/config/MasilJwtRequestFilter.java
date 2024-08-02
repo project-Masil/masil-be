@@ -78,7 +78,7 @@ public class MasilJwtRequestFilter extends OncePerRequestFilter {
 	protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
 	    String path = request.getRequestURI();
 	    // 인증이 필요한 경로를 지정
-	    return !path.equals("/api/auth/user/user-info") || path.equals("/api/auth/user/resign")
-	    	|| path.equals("/api/auth/user/passwordchange") || path.equals("/api/auth/user/profile");
+	    return !path.equals("/api/auth/user/user-info") && !path.equals("/api/auth/user/resign")
+	    	&& !path.equals("/api/auth/user/passwordchange") && !path.equals("/api/auth/user/profile");
 	}
 }
