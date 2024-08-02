@@ -108,9 +108,12 @@ public class MasilUserDetailService {
 
         profileStatusRepository.save(profileStatus);
 
+        MasilMember member = memberRepository.findByUserEmail(request.getUser_email())
+            .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
+
         return MasilProfileUpdateResponse.builder()
             .profileImageUrl(profileStatus.getProfileImgPath())
-            .nickName(profileStatus.getUserEmail())
+            .nickName(member.getUserId())
             .statusMessage(profileStatus.getProfileMsg())
             .build();
     }

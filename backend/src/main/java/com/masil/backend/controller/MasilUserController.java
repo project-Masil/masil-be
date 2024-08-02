@@ -43,7 +43,6 @@ public class MasilUserController {
     // 프로필 변경
     @PostMapping("/api/auth/user/profile")
     public ResponseEntity<?> updateProfile(@ModelAttribute @Valid MasilProfileUpdateRequest profileUpdateRequest) {
-    	profileUpdateRequest.setUser_email(profileUpdateRequest.getUser_email());
 		MasilProfileUpdateResponse response = userDetailService.updateUserProfile(profileUpdateRequest);
 		return DataResponseBodyFormatter.init(SuccessCode.SUCCESS, "유저 정보 수정 성공", response);
 	}
