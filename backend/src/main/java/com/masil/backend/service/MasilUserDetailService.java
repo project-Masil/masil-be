@@ -5,7 +5,11 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
@@ -17,8 +21,10 @@ import com.masil.backend.dto.request.MasilPasswordChangeRequest;
 import com.masil.backend.dto.request.MasilProfileUpdateRequest;
 import com.masil.backend.dto.response.MasilProfileUpdateResponse;
 import com.masil.backend.dto.response.MasilUserResponse;
+import com.masil.backend.entity.MasilLikePost;
 import com.masil.backend.entity.MasilMember;
 import com.masil.backend.entity.MasilProfileStatus;
+import com.masil.backend.repository.MasilLikePostRepository;
 import com.masil.backend.repository.MasilMemberRepository;
 import com.masil.backend.repository.MasilProfileStatusRepository;
 
@@ -31,6 +37,7 @@ public class MasilUserDetailService {
 	private final MasilMemberRepository memberRepository;
     private final MasilProfileStatusRepository profileStatusRepository;
     private final PasswordEncoder passwordEncoder;
+    private final MasilLikePostRepository likePostRepository;
 
     @Value("${profile.image.directory}")	// 프로필 이미지 파일 저장 경로
     private String profileImageDirectory;
@@ -116,5 +123,82 @@ public class MasilUserDetailService {
             .nickName(member.getUserId())
             .statusMessage(profileStatus.getProfileMsg())
             .build();
+    }
+
+    // 찜하기 OR 좋아요 추가
+    // 찜하기 상태 확인 메서드
+    public boolean isPostBookmarkedByUser(String userEmail, int postId) {
+        MasilLikePost likePost = likePostRepository.findById(userEmail)
+                .orElse(new MasilLikePost());
+
+        return likePost.getLikePost() == postId;
+    }
+
+    // 좋아요 상태 확인 메서드
+    public boolean isPostLikedByUser(String userEmail, int postId) {
+        MasilLikePost likePost = likePostRepository.findById(userEmail)
+                .orElse(new MasilLikePost());
+
+        return likePost.getGreatPost() == postId;
+    }
+
+    // 게시글 찜하기
+    public void likePost(String userEmail, int postId) {
+        MasilLikePost likePost = likePostRepository.findById(userEmail)
+                .orElse(MasilLikePost.builder().userEmail(userEmail).build());
+
+        likePost.setLikePost(postId);  // 찜한 게시글 번호 업데이트
+        likePost.setGreatPost(0);   // 좋아요는 0으로 설정
+
+        likePostRepository.save(likePost);
+    }
+
+    // 게시글 좋아요
+    public void greatPost(String userEmail, int postId) {
+        MasilLikePost likePost = likePostRepository.findById(userEmail)
+                .orElse(MasilLikePost.builder().userEmail(userEmail).build());
+
+        likePost.setGreatPost(postId);  // 좋아요한 게시글 번호 업데이트
+        likePost.setLikePost(0);     // 찜은 0으로 설정
+
+        likePostRepository.save(likePost);
+    }
+
+    // 찜/좋아요 취소
+    public void cancelLikeOrGreatPost(String userEmail, boolean isLike) {
+        MasilLikePost likePost = likePostRepository.findById(userEmail)
+                .orElseThrow(() -> new RuntimeException("유저 정보를 찾을 수 없습니다."));
+
+        if (isLike) {
+            likePost.setLikePost(0);  // 찜 취소
+        } else {
+            likePost.setGreatPost(0);  // 좋아요 취소
+        }
+
+        likePostRepository.save(likePost);
+    }
+
+    // 찜한 게시글 조회
+    public List<Integer> getLikedPosts(String userEmail) {
+        List<MasilLikePost> likedPosts = likePostRepository.findByUserEmailAndLikePostNotNull(userEmail);
+        return likedPosts.stream().map(MasilLikePost::getLikePost).collect(Collectors.toList());
+    }
+
+    // 좋아요한 게시글 조회
+    public List<Integer> getGreatPosts(String userEmail) {
+        List<MasilLikePost> greatPosts = likePostRepository.findByUserEmailAndGreatPostNotNull(userEmail);
+        return greatPosts.stream().map(MasilLikePost::getGreatPost).collect(Collectors.toList());
+    }
+
+    // 찜하기와 좋아요 모두 조회
+    public Map<String, List<Integer>> getAllLikedAndGreatPosts(String userEmail) {
+        List<MasilLikePost> likedPosts = likePostRepository.findByUserEmailAndLikePostNotNull(userEmail);
+        List<MasilLikePost> greatPosts = likePostRepository.findByUserEmailAndGreatPostNotNull(userEmail);
+
+        Map<String, List<Integer>> result = new HashMap<>();
+        result.put("likedPosts", likedPosts.stream().map(MasilLikePost::getLikePost).collect(Collectors.toList()));
+        result.put("greatPosts", greatPosts.stream().map(MasilLikePost::getGreatPost).collect(Collectors.toList()));
+
+        return result;
     }
 }

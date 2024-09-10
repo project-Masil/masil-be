@@ -1,22 +1,31 @@
 package com.masil.backend.controller;
 
-import com.masil.backend.dto.request.ReviewDto;
-import com.masil.backend.dto.request.ReviewCommentDto;
-import com.masil.backend.entity.Review;
-import com.masil.backend.entity.ReviewComment;
-import com.masil.backend.service.ReviewService;
-import com.masil.backend.util.Formatter.ResponseBodyFormatter;
-import com.masil.backend.util.Formatter.DataResponseBodyFormatter;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-import com.masil.backend.util.Formatter.ErrorCode;
-import com.masil.backend.util.Formatter.SuccessCode;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
+import com.masil.backend.dto.request.ReviewCommentDto;
+import com.masil.backend.dto.request.ReviewDto;
+import com.masil.backend.entity.Review;
+import com.masil.backend.entity.ReviewComment;
+import com.masil.backend.service.ReviewService;
+import com.masil.backend.util.Formatter.DataResponseBodyFormatter;
+import com.masil.backend.util.Formatter.ErrorCode;
+import com.masil.backend.util.Formatter.ResponseBodyFormatter;
+import com.masil.backend.util.Formatter.SuccessCode;
 
 @RestController
 @RequestMapping("/api/reviews")
@@ -38,7 +47,7 @@ public class ReviewController {
 	public ResponseEntity<ResponseBodyFormatter> getReviewById(@PathVariable Long id) {
 		Review review = reviewService.getReviewById(id).orElse(null);
 		if (review == null) {
-			return ResponseBodyFormatter.init(ResponseCode.NOT_FOUND);
+			return ResponseBodyFormatter.init(ErrorCode.NOT_EXIST);
 		}
 		return DataResponseBodyFormatter.init(SuccessCode.SUCCESS, review);
 	}
@@ -82,6 +91,6 @@ public class ReviewController {
 	@DeleteMapping("/comment")
 	public ResponseEntity<ResponseBodyFormatter> deleteReviewComment(@RequestParam Long commentId) {
 		reviewService.deleteReviewComment(commentId);
-		return ResponseBodyFormatter.init(ResponseCode.SUCCESS);
+		return ResponseBodyFormatter.init(SuccessCode.SUCCESS);
 	}
 }

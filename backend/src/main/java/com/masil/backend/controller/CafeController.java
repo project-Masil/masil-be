@@ -1,17 +1,24 @@
 package com.masil.backend.controller;
 
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
 import com.masil.backend.dto.request.CafeDto;
 import com.masil.backend.entity.CafeInfo;
 import com.masil.backend.service.CafeService;
-import com.masil.backend.util.Formatter.SuccessCode;
+import com.masil.backend.util.Formatter.DataResponseBodyFormatter;
 import com.masil.backend.util.Formatter.ErrorCode;
 import com.masil.backend.util.Formatter.ResponseBodyFormatter;
-import com.masil.backend.util.Formatter.DataResponseBodyFormatter;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
+import com.masil.backend.util.Formatter.SuccessCode;
 
 @RestController
 @RequestMapping("/api/cafes")
@@ -35,16 +42,19 @@ public class CafeController {
 		return DataResponseBodyFormatter.init(SuccessCode.SUCCESS, cafe);
 	}
 
-	@GetMapping("/like/{userId}")
+	/*@GetMapping("/like/{userId}")
 	public ResponseEntity<ResponseBodyFormatter> getLikedCafesByUserId(@PathVariable Long userId) {
 		List<CafeInfo> likedCafes = cafeService.getLikedCafesByUserId(userId);
 		return DataResponseBodyFormatter.init(SuccessCode.SUCCESS, likedCafes);
-	}
+	}*/
 
 	@GetMapping("/search")
 	public ResponseEntity<ResponseBodyFormatter> searchCafes(@RequestParam String query) {
 		List<CafeInfo> cafes = cafeService.searchCafes(query);
-		return DataResponseBodyFormatter.init(SuccessCode.SUCCESS, cafes);
+		if (cafes.isEmpty()) {
+	        return ResponseBodyFormatter.init(ErrorCode.NOT_EXIST);
+	    }
+	    return DataResponseBodyFormatter.init(SuccessCode.SUCCESS, cafes);
 	}
 
 	@PostMapping("/newplace")

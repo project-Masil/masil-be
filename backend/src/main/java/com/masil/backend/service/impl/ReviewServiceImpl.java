@@ -1,7 +1,15 @@
 package com.masil.backend.service.impl;
 
-import com.masil.backend.dto.request.ReviewDto;
+import java.util.List;
+import java.util.Optional;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+
 import com.masil.backend.dto.request.ReviewCommentDto;
+import com.masil.backend.dto.request.ReviewDto;
 import com.masil.backend.entity.CafeInfo;
 import com.masil.backend.entity.Review;
 import com.masil.backend.entity.ReviewComment;
@@ -9,13 +17,6 @@ import com.masil.backend.repository.CafeInfoRepository;
 import com.masil.backend.repository.ReviewCommentRepository;
 import com.masil.backend.repository.ReviewRepository;
 import com.masil.backend.service.ReviewService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Service;
-
-import java.util.List;
-import java.util.Optional;
 
 @Service
 public class ReviewServiceImpl implements ReviewService {
@@ -46,7 +47,7 @@ public class ReviewServiceImpl implements ReviewService {
 
 	@Override
 	public List<ReviewComment> getCommentsByReviewId(Long reviewId) {
-		return reviewCommentRepository.findByReviewId(reviewId);
+		return reviewCommentRepository.findByReview_ReviewId(reviewId);
 	}
 
 	@Override

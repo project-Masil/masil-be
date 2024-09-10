@@ -1,12 +1,13 @@
 package com.masil.backend.repository;
 
-import com.masil.backend.entity.ReviewComment;
+import java.util.List;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
+import com.masil.backend.entity.ReviewComment;
 
 @Repository
 public interface ReviewCommentRepository extends JpaRepository<ReviewComment, Long> {
-	List<ReviewComment> findByReviewId(Long reviewId);
+	List<ReviewComment> findByReview_ReviewId(Long reviewId);
 }

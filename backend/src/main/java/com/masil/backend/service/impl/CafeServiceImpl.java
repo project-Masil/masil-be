@@ -1,14 +1,15 @@
 package com.masil.backend.service.impl;
 
+import java.util.List;
+import java.util.Optional;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
 import com.masil.backend.dto.request.CafeDto;
 import com.masil.backend.entity.CafeInfo;
 import com.masil.backend.repository.CafeInfoRepository;
 import com.masil.backend.service.CafeService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
-import java.util.List;
-import java.util.Optional;
 
 @Service
 public class CafeServiceImpl implements CafeService {
@@ -26,16 +27,15 @@ public class CafeServiceImpl implements CafeService {
 		return cafeInfoRepository.findById(id);
 	}
 
-	@Override
+	/*@Override
 	public List<CafeInfo> getLikedCafesByUserId(Long userId) {
 		// 사용자별로 좋아요한 카페 조회 구현 (예시)
 		return cafeInfoRepository.findLikedCafesByUserId(userId);
-	}
+	}*/
 
 	@Override
 	public List<CafeInfo> searchCafes(String query) {
-		// 카페 검색 구현 (예시)
-		return cafeInfoRepository.searchCafesByName(query);
+		return cafeInfoRepository.findByCafeNameContaining(query);
 	}
 
 	@Override
@@ -43,7 +43,7 @@ public class CafeServiceImpl implements CafeService {
 		CafeInfo cafeInfo = CafeInfo.builder()
 			.cafeName(cafeDto.getCafeName())
 			.cafeLoca(cafeDto.getCafeLoca())
-			.cafeSignature(cafeDto.getCafeSignature())
+			.cafeSigniture(cafeDto.getCafeSignature())
 			.cafeOpen(cafeDto.getCafeOpen())
 			.build();
 
