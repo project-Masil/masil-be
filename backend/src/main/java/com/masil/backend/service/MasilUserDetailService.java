@@ -1,10 +1,6 @@
 package com.masil.backend.service;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -16,6 +12,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.masil.backend.dto.request.MasilPasswordChangeRequest;
 import com.masil.backend.dto.request.MasilProfileUpdateRequest;
@@ -29,6 +26,10 @@ import com.masil.backend.repository.MasilMemberRepository;
 import com.masil.backend.repository.MasilProfileStatusRepository;
 
 import lombok.RequiredArgsConstructor;
+import software.amazon.awssdk.core.sync.RequestBody;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
+import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
 @Service
 @RequiredArgsConstructor
@@ -38,9 +39,10 @@ public class MasilUserDetailService {
     private final MasilProfileStatusRepository profileStatusRepository;
     private final PasswordEncoder passwordEncoder;
     private final MasilLikePostRepository likePostRepository;
+    private final S3Client s3Client;
 
-    @Value("${profile.image.directory}")	// 프로필 이미지 파일 저장 경로
-    private String profileImageDirectory;
+    @Value("${aws.s3.bucket-name}")
+    private String bucketName;
 
     public MasilUserResponse getUserDetail(String nickName) {
         // 유저 정보 조회
@@ -83,32 +85,17 @@ public class MasilUserDetailService {
             .orElseThrow(() -> new RuntimeException("프로필 정보를 찾을 수 없습니다."));
 
         // 프로필 이미지 업데이트
-        if (!request.getProfileImage().isEmpty()) {
-            // 기존 이미지 파일 삭제
-            if (profileStatus.getProfileReImgName() != null) {
-                Path oldImagePath = Paths.get(profileImageDirectory, profileStatus.getProfileReImgName());
-                try {
-                    Files.deleteIfExists(oldImagePath);
-                } catch (IOException e) {
-                    throw new RuntimeException("기존 프로필 이미지 파일 삭제에 실패했습니다.", e);
-                }
-            }
-
-            // 새 이미지 파일 저장
-            String FileName = request.getProfileImage().getOriginalFilename();
-            String uniqueFileName = "masil_" + UUID.randomUUID().toString() + ".png";
-            Path newImagePath = Paths.get(profileImageDirectory, uniqueFileName);
-            try {
-                Files.copy(request.getProfileImage().getInputStream(), newImagePath, StandardCopyOption.REPLACE_EXISTING);
-            } catch (IOException e) {
-                throw new RuntimeException("새 프로필 이미지 파일 저장에 실패했습니다.", e);
-            }
-
-            profileStatus.setProfileImgName(FileName);
-            profileStatus.setProfileReImgName(uniqueFileName);
-            profileStatus.setProfileImgPath(newImagePath.toString());
-            profileStatus.setProfileSize(request.getProfileImage().getSize());
+        if (profileStatus.getProfileReImgName() != null) {
+            deleteImageFromS3(profileStatus.getProfileReImgName());
         }
+
+        // 새 이미지 업로드 및 경로 설정
+        String newFileName = uploadImageToS3(request.getProfileImage());
+
+        profileStatus.setProfileImgName(request.getProfileImage().getOriginalFilename());
+        profileStatus.setProfileReImgName(newFileName);
+        profileStatus.setProfileImgPath("https://s3.amazonaws.com/" + bucketName + "/" + newFileName);
+        profileStatus.setProfileSize(request.getProfileImage().getSize());
 
         // 상태 메시지 업데이트
         profileStatus.setProfileMsg(request.getStatusMessage());
@@ -123,6 +110,34 @@ public class MasilUserDetailService {
             .nickName(member.getUserId())
             .statusMessage(profileStatus.getProfileMsg())
             .build();
+    }
+
+    // S3에서 이미지 삭제 메서드
+    private void deleteImageFromS3(String imageName) {
+        DeleteObjectRequest deleteRequest = DeleteObjectRequest.builder()
+            .bucket(bucketName)
+            .key(imageName)
+            .build();
+        s3Client.deleteObject(deleteRequest);
+    }
+
+    // S3에 이미지 업로드 메서드
+    private String uploadImageToS3(MultipartFile image) {
+        String uniqueFileName = "masil_" + UUID.randomUUID().toString() + ".png";
+
+        try {
+            PutObjectRequest putObjectRequest = PutObjectRequest.builder()
+                .bucket(bucketName)
+                .key(uniqueFileName)
+                .contentType(image.getContentType())
+                .build();
+
+            s3Client.putObject(putObjectRequest, RequestBody.fromInputStream(image.getInputStream(), image.getSize()));
+        } catch (IOException e) {
+            throw new RuntimeException("S3에 이미지를 업로드하는 중 오류가 발생했습니다.", e);
+        }
+
+        return uniqueFileName;
     }
 
     // 찜하기 OR 좋아요 추가
