@@ -31,11 +31,12 @@ security:
   client-id: ${CLIENT_ID}
   client-secret: ${CLIENT_SECRET}
 
-#프로필 테스트 임시 파일 저장경로 추후 변경예정
-profile:
-  image:
-    directory: static/images/
-
 # JWT Secret
 jwt:
   secret: a_very_long_and_secure_secret_key_that_is_at_least_32_bytes_long
+# S3 설정
+aws:
+  s3:
+    bucket-name: masils
+    access-key: ${AWS_ACCESS_KEY}
+    secret-key: ${AWS_SECRET_KEY}

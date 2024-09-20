@@ -22,7 +22,4 @@ public interface MasilMemberRepository extends JpaRepository<MasilMember, String
 
     // 로그인 유저 조회
     Optional<MasilMember> findByUserEmail(String userEmail);
-
-    // 유저 정보 조회
-    Optional<MasilMember> findByUserId(String userId);
 }

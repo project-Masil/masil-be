@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
 
 import com.masil.backend.dto.request.MasilMemberCheckRequest;
 import com.masil.backend.service.MasilSignMemberService;
@@ -31,13 +30,11 @@ public class MasilSignMemberController {
 
 	// 회원가입
     @PostMapping("/api/auth/user/sign-up")
-    public ResponseEntity<ResponseBodyFormatter> registerAndUploadProfile(@RequestPart("profile") MultipartFile profileImg,@Valid @RequestPart("member") MasilMemberCheckRequest memberCheckDto) {
+    public ResponseEntity<ResponseBodyFormatter> registerAndUploadProfile(@Valid @RequestPart("member") MasilMemberCheckRequest memberCheckDto) {
     	if (memberSignService.isIdExists(memberCheckDto.getNickName())) {
             return DataResponseBodyFormatter.init(ErrorCode.NOT_EXIST, "닉네임이 이미 존재합니다.");
         }
 	    try {
-	        // DTO에 프로필 이미지 설정
-	        memberCheckDto.setProfile(profileImg);
 	        // 회원 가입 처리
 	        memberSignService.registerMember(memberCheckDto);
 	    } catch (IOException e) {
