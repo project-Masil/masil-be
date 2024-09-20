@@ -38,3 +38,4 @@ jwt:
 aws:
   s3:
     bucket-name: masils
+    

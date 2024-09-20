@@ -1,6 +1,8 @@
 package com.masil.backend.entity;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import jakarta.persistence.CascadeType;
@@ -49,6 +51,23 @@ public class Review {
 	@JoinColumn(name = "cafe_id")
 	private CafeInfo cafeInfo;
 
-	@OneToMany(mappedBy = "review", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+	@OneToMany(mappedBy = "review", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
 	private Set<ReviewImage> reviewImages;
+
+	public void setReviewImagesFromUrls(List<String> imageUrls) {
+        if (reviewImages != null) {
+            reviewImages.clear();
+        } else {
+            reviewImages = new HashSet<>();
+        }
+
+        for (String imageUrl : imageUrls) {
+            ReviewImage reviewImage = ReviewImage.builder()
+                .review(this)
+                .reviewimgName(imageUrl)
+                .deleteYn(false)
+                .build();
+            reviewImages.add(reviewImage);
+        }
+    }
 }

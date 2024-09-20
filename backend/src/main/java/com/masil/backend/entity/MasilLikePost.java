@@ -23,7 +23,7 @@ public class MasilLikePost {
 	@Column(name = "like_post")
 	private int likePost;	// 찜한 게시글번호
 
-	@Column(name = "greate_post")
+	@Column(name = "great_post")
 	private int greatPost;	// 좋아요한 게시글 번호
 
 

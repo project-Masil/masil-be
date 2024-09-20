@@ -16,7 +16,6 @@ import com.masil.backend.repository.MasilMemberLoginTryCountRepository;
 import com.masil.backend.repository.MasilMemberRepository;
 import com.masil.backend.repository.MasilProfileStatusRepository;
 import com.masil.backend.util.Jwt.JwtUtil;
-import com.masil.backend.util.Redis.RedisUtil;
 
 import lombok.RequiredArgsConstructor;
 import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
@@ -29,7 +28,6 @@ public class MasilSignMemberService {
     private final MasilProfileStatusRepository profileStatusRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
-    private final RedisUtil redisUtil;
     private final MasilMemberLoginTryCountRepository loginTryCountRepository;
     private final S3Service s3Service;
 
