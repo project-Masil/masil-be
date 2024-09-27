@@ -2,7 +2,6 @@ plugins {
 	id 'java'
 	id 'org.springframework.boot' version '3.3.0'
 	id 'io.spring.dependency-management' version '1.1.5'
-	id "com.ewerk.gradle.plugins.querydsl" version "1.0.10"
 }
 
 group = 'com.masil'
@@ -18,6 +17,7 @@ configurations {
 	compileOnly {
 		extendsFrom annotationProcessor
 	}
+	querydsl
 }
 
 repositories {
@@ -40,8 +40,6 @@ dependencies {
 	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.5.0'
 
 	// QueryDSL
-	/*implementation "com.querydsl:querydsl-jpa:5.0.0"
-	implementation "com.querydsl:querydsl-apt:5.0.0"*/
 	implementation 'com.querydsl:querydsl-jpa:5.0.0:jakarta'
 	annotationProcessor "com.querydsl:querydsl-apt:5.0.0:jakarta"
 	annotationProcessor "jakarta.annotation:jakarta.annotation-api"
@@ -54,33 +52,33 @@ dependencies {
 	implementation 'org.springframework:spring-context-support:6.0.10'
 	// Spring Boot Starter Mail
 	implementation 'org.springframework.boot:spring-boot-starter-mail'
-	//redis 추가
+	// Redis
 	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
-	//JWT
+	// JWT
 	implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
     implementation 'io.jsonwebtoken:jjwt-impl:0.11.5'
     implementation 'io.jsonwebtoken:jjwt-jackson:0.11.5'
     
-    // AWS S3 SDK 추가
+    // AWS S3 SDK
     implementation 'software.amazon.awssdk:s3:2.20.20'
 }
 
-// Qtype 생성 경로
+// Q 클래스 생성 경로
 def querydslDir = "$buildDir/generated/querydsl"
-querydsl {
-	jpa = true
-	querydslSourcesDir = querydslDir
-}
 sourceSets {
-	main.java.srcDir querydslDir
+	main {
+		java {
+			srcDir querydslDir
+		}
+	}
 }
-compileQuerydsl{
-	options.annotationProcessorPath = configurations.querydsl
+
+tasks.withType(JavaCompile) {
+	options.annotationProcessorGeneratedSourcesDirectory = file(querydslDir)
 }
+
+// QueryDSL 관련 configuration 설정
 configurations {
-	/*compileOnly {
-		extendsFrom annotationProcessor
-	}*/
 	querydsl.extendsFrom compileClasspath
 }
 
