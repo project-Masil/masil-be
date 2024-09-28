@@ -2,15 +2,16 @@
 spring:
   datasource:
     driverClassName: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://masil.c54ikwwu6859.ap-northeast-2.rds.amazonaws.com:3306/masil
+    url: jdbc:mysql://masil.c54ikwwu6859.ap-northeast-2.rds.amazonaws.com:3306/masil?useSSL=false&allowPublicKeyRetrieval=true
     username: masil
-    password: masil1234
+    password: masil123
 
 # JPA configuration
   jpa:
     open-in-view: false
     hibernate:
-      ddl-auto: validate
+      ddl-auto: update
+      dialect: org.hibernate.dialect.MySQLDialect
     show-sql: true
     properties:
       hibernate:
